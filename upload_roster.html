@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>上传选手信息</title>
+  <link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/qrt.png') }}" alt="Logo" height="40">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#tables">查看分桌</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#scoreboard">查看排行榜</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('player_query') }}">查询本人所在桌号</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('judge_dashboard') }}">裁判工作台</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info">
+      {% for msg in messages %}
+      <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <h2>上传选手信息 (Excel)</h2>
+  <form method="post" enctype="multipart/form-data" class="card p-3">
+    <div class="mb-3">
+      <label class="form-label">选择 Excel 文件</label>
+      <input type="file" name="file" accept=".xlsx" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">上传并生成第一轮分桌</button>
+  </form>
+
+  <p>
+    {% if 'judge' in session %}
+        <a href="{{ url_for('judge_dashboard') }}" class="btn btn-secondary">返回裁判工作台</a>
+    {% else %}
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
+    {% endif %}
+</p>
+</div>
+
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

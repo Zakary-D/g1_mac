@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>裁判工作台</title>
+  <link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/qrt.png') }}" alt="Logo" height="40">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#tables">查看分桌</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#scoreboard">查看排行榜</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('player_query') }}">查询本人所在桌号</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('judge_logout') }}">退出</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <!-- 若有 flash 提示 -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info">
+      {% for msg in messages %}
+      <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <h2>裁判工作台</h2>
+  <p>欢迎, <strong>{{ session['judge'] }}</strong></p>
+
+  <div class="list-group my-3">
+    <!-- 超级裁判特权(示例) -->
+    {% if session['judge'] == 'judge044' %}   
+    <a href="{{ url_for('upload_roster') }}" class="list-group-item list-group-item-action">
+      上传选手信息（Excel）
+    </a>
+    <a href="{{ url_for('create_judges') }}" class="list-group-item list-group-item-action">
+      批量创建裁判账号
+    </a>
+
+    <!-- 进入第二轮（始终可点） -->
+    <a href="{{ url_for('start_round', round_number=2) }}"
+      class="list-group-item list-group-item-action"
+      onclick="return confirm('确认要进入第二轮并完成分桌？')">
+      进入第二轮
+    </a>
+
+    <!-- 进入第三轮（需进入第二轮之后才可点） -->
+    {% set round2_started = assignments_round2_exist %}
+    <a href="{{ url_for('start_round', round_number=3) }}"
+      class="list-group-item list-group-item-action {% if not round2_started %}disabled{% endif %}"
+      {% if round2_started %}
+        onclick="return confirm('确认要进入第三轮并完成分桌？')"
+      {% else %}
+        onclick="alert('请先完成第二轮的分桌操作'); return false;"
+      {% endif %}>
+      {% if round2_started %}
+        进入第三轮
+      {% else %}
+        （需先完成第二轮）
+      {% endif %}
+    </a>
+
+    <a href="{{ url_for('judge_view_submissions') }}" class="list-group-item list-group-item-action">
+      查看所有裁判录入记录
+    </a>
+    <a href="{{ url_for('manage_players') }}" class="list-group-item list-group-item-action">
+      管理选手（添加 / 删除）
+    </a>    
+
+    
+    <a class="list-group-item list-group-item-action">
+      测试生成选手 Excel:
+          <form method="post" action="{{ url_for('generate_players_excel') }}">
+          <input type="number" name="count" value="104" min="1">
+          <input type="submit" value="生成 Excel 文件">
+          </form>
+    </a>
+    <!-- <a href="{{ url_for('clear_data') }}" class="list-group-item list-group-item-action">
+      清空数据（调试用）
+    </a> -->
+    <form method="post" action="{{ url_for('clear_data') }}" onsubmit="return confirm('⚠️ 确认要清空所有数据吗？此操作不可恢复！')">
+      <button type="submit" class="btn btn-danger">清空所有数据</button>
+    </form>
+
+    <hr>
+    <hr>
+    <hr>
+    {% endif %}
+    
+    <!-- <a href="{{ url_for('judge_submit') }}" class="list-group-item list-group-item-action">
+      录入桌面筹码
+    </a> -->
+    <form method="get" action="{{ url_for('judge_submit') }}" class="card p-3 mb-4">
+      <div class="mb-3">
+        <label class="form-label">选择轮次</label>
+        <select name="round_number" class="form-select">
+          <option value="1">第一轮</option>
+          <option value="2">第二轮</option>
+          <option value="3">第三轮</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">选择桌号</label>
+        {% if session['judge'] == 'judge044' %}
+          <!-- 超级裁判可自己输入桌号 -->
+          <input type="number" name="table_number" class="form-control" placeholder="输入桌号">
+        {% else %}
+          <!-- 普通裁判固定自己那桌 -->
+          <input type="number" name="table_number" class="form-control" 
+                 value="{{ session['judge']|replace('judge','')|int }}" readonly>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary">前往录入界面</button>
+    </form>
+
+  </div>
+
+
+    <ul class="list-group mb-3">
+      <li class="list-group-item">
+        <!-- 跳转锚点：查看分桌区块 -->
+        <section id="tables" class="mt-4">
+          <h2>查看分桌</h2>
+          <p>请选择要查看的轮次：</p>
+          <div class="btn-group" role="group">
+            <a href="{{ url_for('view_tables', round_number=1) }}" class="btn btn-primary">第一轮</a>
+            <a href="{{ url_for('view_tables', round_number=2) }}" class="btn btn-primary">第二轮</a>
+            <a href="{{ url_for('view_tables', round_number=3) }}" class="btn btn-primary">第三轮</a>
+          </div>
+        </section>
+      </li>
+      <li class="list-group-item">
+        <!-- 跳转锚点：查看排行榜区块 -->
+        <section id="scoreboard" class="mt-4">
+          <h2>查看排行榜</h2>
+          <p>请选择要查看的轮次：</p>
+          <div class="btn-group" role="group">
+            <a href="{{ url_for('scoreboard', round_number=1) }}" class="btn btn-success">第一轮</a>
+            <a href="{{ url_for('scoreboard', round_number=2) }}" class="btn btn-success">第二轮</a>
+            <a href="{{ url_for('scoreboard', round_number=3) }}" class="btn btn-success">第三轮</a>
+          </div>
+        </section>
+      </li>
+      <li class="list-group-item">
+        <!-- 跳转锚点：查询本人所在桌号 -->
+        <section id="query_table" class="mt-4">
+          <h2>查询某人所在桌号</h2>
+          <p>点击查询某人所在桌号：</p>
+          <div class="btn-group" role="group">
+            <a href="{{ url_for('player_query') }}" class="btn btn-info">查询</a>
+          </div>
+        </section>
+      </li>
+  </div>
+
+  <a href="{{ url_for('judge_logout') }}" class="btn btn-secondary">退出登录</a>
+</div>
+
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

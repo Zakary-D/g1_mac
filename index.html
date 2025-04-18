@@ -1,0 +1,114 @@
+<!-- <h1>趣味德州扑克比赛管理系统</h1> -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>德州扑克积分管理系统</title>
+  <!-- Bootstrap CSS (CDN) -->
+  <link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- 可选：你自己的自定义 CSS -->
+  <!-- <link rel="stylesheet" href="static/style.css"> -->
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <!-- 品牌/LOGO -->
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/qrt.png') }}" alt="Logo" height="40">
+    </a>
+    <!-- 折叠按钮 (移动端) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- 导航内容 -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ms-auto">
+        <!-- “查看分桌”链接 -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#tables">查看分桌</a>
+        </li>
+        <!-- “查看排行榜”链接 -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#scoreboard">查看排行榜</a>
+        </li>
+        <!-- “查询本人所在桌号”链接 -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#query_table">查询本人所在桌号</a>
+        </li>
+        <!-- “裁判登录”链接 -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('judge_login') }}">裁判登录</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- 主内容 -->
+<div class="container my-4">
+  <!-- 闪现消息 (若有) -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info" role="alert">
+      {% for msg in messages %}
+      <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <h1>欢迎来到德州扑克管理系统</h1>
+  <p>在这里你可以查看分桌、查看排行榜、查询本人所在桌号，或裁判登录录入数据。</p>
+
+  <ul class="list-group mb-3">
+    <li class="list-group-item">
+      <!-- 跳转锚点：查看分桌区块 -->
+      <section id="tables" class="mt-4">
+        <h2>查看分桌</h2>
+        <p>请选择要查看的轮次：</p>
+        <div class="btn-group" role="group">
+          <a href="{{ url_for('view_tables', round_number=1) }}" class="btn btn-primary">第一轮</a>
+          <a href="{{ url_for('view_tables', round_number=2) }}" class="btn btn-primary">第二轮</a>
+          <a href="{{ url_for('view_tables', round_number=3) }}" class="btn btn-primary">第三轮</a>
+        </div>
+      </section>
+    </li>
+    <li class="list-group-item">
+      <!-- 跳转锚点：查看排行榜区块 -->
+      <section id="scoreboard" class="mt-4">
+        <h2>查看排行榜</h2>
+        <p>请选择要查看的轮次：</p>
+        <div class="btn-group" role="group">
+          <a href="{{ url_for('scoreboard', round_number=1) }}" class="btn btn-success">第一轮</a>
+          <a href="{{ url_for('scoreboard', round_number=2) }}" class="btn btn-success">第二轮</a>
+          <a href="{{ url_for('scoreboard', round_number=3) }}" class="btn btn-success">第三轮</a>
+        </div>
+      </section>
+    </li>
+    <li class="list-group-item">
+      <!-- 跳转锚点：查询本人所在桌号 -->
+      <section id="query_table" class="mt-4">
+        <h2>查询本人所在桌号</h2>
+        <p>点击查询本人所在桌号：</p>
+        <div class="btn-group" role="group">
+          <a href="{{ url_for('player_query') }}" class="btn btn-info">查询</a>
+        </div>
+      </section>
+    </li>
+    ...
+  </ul>
+  
+</div>
+
+
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

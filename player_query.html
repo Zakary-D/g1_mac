@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>查询本人所在桌号</title>
+  <!-- Bootstrap CSS (CDN) -->
+  <link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/qrt.png') }}" alt="Logo" height="40">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#tables">查看分桌</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#scoreboard">查看排行榜</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#">查询本人所在桌号</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('judge_login') }}">裁判登录</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info">
+      {% for msg in messages %}
+      <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <h2>查询本人所在桌号</h2>
+  <form method="post" class="card p-3 mb-4">
+    <div class="mb-3">
+      <label for="identifier" class="form-label">请输入手机号或选手编号</label>
+      <input type="text" name="identifier" id="identifier" class="form-control" placeholder="例如：139XXXXXX 或 001">
+    </div>
+    <button type="submit" class="btn btn-primary">查询</button>
+  </form>
+
+  {% if data %}
+    <div class="card p-3">
+      <h5>选手信息</h5>
+      <p>编号：{{ data.unique_id }}<br>姓名：{{ data.name }}</p>
+      <hr>
+      <h5>三轮分桌情况</h5>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>轮次</th>
+            <th>桌号</th>
+            <th>座位号</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for round_info in data.rounds %}
+          <tr>
+            <td>第{{ round_info.round }}轮</td>
+            <td>{{ round_info.table_number }}</td>
+            <td>{{ round_info.seat_number }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <p>
+    {% if 'judge' in session %}
+      <a href="{{ url_for('judge_dashboard') }}" class="btn btn-secondary">返回裁判工作台</a>
+    {% else %}
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
+    {% endif %}
+  </p>
+</div>
+
+<!-- Bootstrap JS -->
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

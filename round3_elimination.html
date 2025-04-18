@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>第三轮淘汰记录</title>
+  <link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/qrt.png') }}" alt="Logo" height="40">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#tables">查看分桌</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}#scoreboard">查看排行榜</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('player_query') }}">查询本人所在桌号</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('judge_dashboard') }}">裁判工作台</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info">
+      {% for msg in messages %}
+      <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <h2>第三轮淘汰记录</h2>
+  <!-- <form method="post" class="row gy-2 gx-3 align-items-center">
+    <div class="col-auto">
+      <label for="player_unique_id" class="col-form-label">淘汰选手编号:</label>
+    </div>
+    <div class="col-auto">
+      <input type="text" name="player_unique_id" class="form-control" id="player_unique_id" placeholder="选手编号">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-danger">记录淘汰</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <h5>已淘汰选手</h5>
+  <ul class="list-group">
+    {% for e in eliminations %}
+    <li class="list-group-item">
+      <strong>{{ e.order }}</strong>. {{ e.unique_id }} - {{ e.name }}
+    </li>
+    {% endfor %}
+  </ul> -->
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>淘汰顺序</th>
+        <th>选手编号</th>
+        <th>选手姓名</th>
+        <th>得分</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in eliminations %}
+      <tr>
+        <td>{{ e.order }}</td>
+        <td>{{ e.unique_id }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.score|round(2) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="mt-3">
+    <a href="{{ url_for('judge_dashboard') }}" class="btn btn-secondary">返回工作台</a>
+  </p>
+</div>
+
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
